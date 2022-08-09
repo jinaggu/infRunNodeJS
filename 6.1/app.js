@@ -4,10 +4,14 @@ const express = require("express");
 const path = require("path");
 const app = express(); // 1. app 먼저 만듬.
 const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 // 2. app에 관한 set설정을 해줌.
 app.set("port", process.env.PORT || 3000); // process.env.PORT 가없으면 3000포트를 쓴다는것.
 
-app.use(morgan("dev"));
+// morgan은 서버실행 시간과 응답 등등을 콘솔로 찍어줌.
+app.use(morgan("dev")); // 개발할때는 dev로
+// app.use(morgan("combined")); // 배포할때는 combined로 더 자세하게 기록된다.
+app.use(cookieParser());
 
 // 3. app에 관한 공통 미들웨어 추가.
 app.use(
@@ -18,14 +22,15 @@ app.use(
     // about 요청이 왔을때 실행되고 next로 인해서 about라우터로 간다.
     console.log("모든 요청에 실행하고 싶어요.");
     next(); // app.use 같은 미들웨어는 next() 를 해줘야 다음걸로 넘어 간다.
-  },
-  (req, res, next) => {
-    try {
-      throw new Error("에러낫슈");
-    } catch (err) {
-      next(err); // next에 인수가 들어갈경우 에러라고 인식. 그래서 바로 에러처리 미들웨어로 들어가서 에러가 처리된다.
-    }
   }
+  // ,
+  // (req, res, next) => {
+  //   try {
+  //     throw new Error("에러낫슈");
+  //   } catch (err) {
+  //     next(err); // next에 인수가 들어갈경우 에러라고 인식. 그래서 바로 에러처리 미들웨어로 들어가서 에러가 처리된다.
+  //   }
+  // }
 );
 
 // 4. app에 관한 라우터 추가
@@ -37,6 +42,18 @@ app.get("/", (req, res) => {
   // res.writeHead(200, { "Content-Type": "application/json" });
   // res.end(JSON.stringify({ hello: "gina" }));
 
+  req.cookies; // {mycookie : 'test'} <- 이런식으로 cookie-parser가 자동적으로 파싱해서 가져온다.
+  res.cookie("name", encodeURIComponent(name), {
+    // cookie 정의.
+    expires: new Date(),
+    httpOnly: true,
+    path: "/",
+  });
+  res.clearCookie("name", encodeURIComponent(name), {
+    // clearCookie를 통해서 쿠키 삭제.
+    httpOnly: true,
+    path: "/",
+  });
   // 3. 위에 2번 두줄을 한줄로 익스프레스가 바꿔준다.
   res.json({ hello: "gina" });
 });
