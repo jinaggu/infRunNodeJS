@@ -1,8 +1,13 @@
-const express = require("express"); // http 서버를 쓰고있는 express 서버를 우리가 쓰고있는거기때문에 http를 쓰는것임.
+// 요즘은 body-parser를 안쓴다. 쓰면 옛날 사람임 ...ㅋㅋㅋㅋ
+// http 서버를 쓰고있는 express 서버를 우리가 쓰고있는거기때문에 http를 쓰는것임.
+const express = require("express");
 const path = require("path");
 const app = express(); // 1. app 먼저 만듬.
+const morgan = require("morgan");
 // 2. app에 관한 set설정을 해줌.
 app.set("port", process.env.PORT || 3000); // process.env.PORT 가없으면 3000포트를 쓴다는것.
+
+app.use(morgan("dev"));
 
 // 3. app에 관한 공통 미들웨어 추가.
 app.use(
