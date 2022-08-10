@@ -11,7 +11,9 @@ app.set("port", process.env.PORT || 3000); // process.env.PORT 가없으면 3000
 // morgan은 서버실행 시간과 응답 등등을 콘솔로 찍어줌.
 app.use(morgan("dev")); // 개발할때는 dev로
 // app.use(morgan("combined")); // 배포할때는 combined로 더 자세하게 기록된다.
-app.use(cookieParser());
+app.use(cookieParser("ginapassword")); // 이렇게 암호회된 쿠키를 쓸수도 있음.
+app.use(express.json()); // 이제 바디파서안쓰고 이렇게씀 !!
+app.use(express.urlencoded({ extended: true })); // 이렇게쓰면 알아서 바디를 파싱해준다!! 이게 폼파싱해주는거임.
 
 // 3. app에 관한 공통 미들웨어 추가.
 app.use(
@@ -43,6 +45,7 @@ app.get("/", (req, res) => {
   // res.end(JSON.stringify({ hello: "gina" }));
 
   req.cookies; // {mycookie : 'test'} <- 이런식으로 cookie-parser가 자동적으로 파싱해서 가져온다.
+  req.signedCookies; // 암호화된 쿠키임. (서명이 조금더 정확한것.)
   res.cookie("name", encodeURIComponent(name), {
     // cookie 정의.
     expires: new Date(),
@@ -54,6 +57,10 @@ app.get("/", (req, res) => {
     httpOnly: true,
     path: "/",
   });
+
+  req.body.name; // 이렇게 바디에있는 값을 꺼낼수 있다. 클라이언트에서 name을 보냈으면 name이렇게 받을수 있는 것임
+  // hello를 보냈으면 req.body.hello; 이렇게 받는거
+
   // 3. 위에 2번 두줄을 한줄로 익스프레스가 바꿔준다.
   res.json({ hello: "gina" });
 });
