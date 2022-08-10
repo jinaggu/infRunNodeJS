@@ -2,18 +2,30 @@
 // http 서버를 쓰고있는 express 서버를 우리가 쓰고있는거기때문에 http를 쓰는것임.
 const express = require("express");
 const path = require("path");
-const app = express(); // 1. app 먼저 만듬.
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
+const session = require("express-session");
+const multer = require("multer");
+const app = express(); // 1. app 먼저 만듬.
+
 // 2. app에 관한 set설정을 해줌.
 app.set("port", process.env.PORT || 3000); // process.env.PORT 가없으면 3000포트를 쓴다는것.
 
 // morgan은 서버실행 시간과 응답 등등을 콘솔로 찍어줌.
 app.use(morgan("dev")); // 개발할때는 dev로
+
+// app.use("요청경로를 적어줌", express.static("실제경로를 적어줌."));
+app.use("/", express.static(__dirname, "public-3030")); // 미들웨어들간에도 순서가 중요하다.
+// 사진같은 정적파일은 이 미들웨어에서 쓰이고 밑으로 내려가지 않는다.
+// 그래서 밑에 쿠키파서라던지, 세션이라던지 다른 미들웨어를 사용할필요가 없다. 그래서 거의 윗쪽에 적어둠.
+// 성능적인 문제로 미들웨어간의 순서도 매우 중요하다. 하지만 정해진건없음. 그 서비스에 맞게 미들웨어의 순서를 써주면됌.
+
 // app.use(morgan("combined")); // 배포할때는 combined로 더 자세하게 기록된다.
 app.use(cookieParser("ginapassword")); // 이렇게 암호회된 쿠키를 쓸수도 있음.
 app.use(express.json()); // 이제 바디파서안쓰고 이렇게씀 !!
 app.use(express.urlencoded({ extended: true })); // 이렇게쓰면 알아서 바디를 파싱해준다!! 이게 폼파싱해주는거임.
+app.use(session());
+app.use(multer().array());
 
 // 3. app에 관한 공통 미들웨어 추가.
 app.use(
