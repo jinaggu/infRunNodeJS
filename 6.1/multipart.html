@@ -1,0 +1,20 @@
+<form id="form" action="/upload" method="post" enctype="multipart/form-data">
+  <input type="file" name="image" multiple />
+  <!-- multiple인 경우 하나가지고 여러개를 업로드 할 수 있다. -->
+  <input type="file" name="image2" />
+  <input type="file" name="image3" />
+  <input type="text" name="title" />
+  <button type="submit">업로드</button>
+</form>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+  document.getElementById("form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("image", e.target.image.files[0]); // 파일 두세개로 늘어나면 길이구해서 넣어야겟
+    formData.append("image2", e.target.image.files[1]);
+    formData.append("image3", e.target.image.files[2]);
+    formData.append("title", e.target.title.value);
+    axios.post("/upload", formData);
+  });
+</script>
