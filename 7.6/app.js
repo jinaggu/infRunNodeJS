@@ -4,9 +4,9 @@ const morgan = require("morgan");
 const nunjucks = require("nunjucks");
 
 const { sequelize } = require("./models");
-// const indexRouter = require("./routes");
-// const usersRouter = require("./routes/users");
-// const commentsRouter = require("./routes/comments");
+const indexRouter = require("./routes");
+const usersRouter = require("./routes/users");
+const commentsRouter = require("./routes/comments");
 
 const app = express();
 app.set("port", process.env.PORT || 3001);
@@ -15,25 +15,23 @@ nunjucks.configure("views", {
   express: app,
   watch: true,
 });
-
-// 시퀄라이즈 sync를 하면 데이터베이스 연결이 된다! 꼭 싱크를 해줘야함.
 sequelize
   .sync({ force: false })
   .then(() => {
     console.log("데이터베이스 연결 성공");
   })
   .catch((err) => {
-    console.log(err);
+    console.error(err);
   });
 
-app.use(morgan("dev")); // dev용 morgan 사용
+app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// app.use("/", indexRouter);
-// app.use("/users", usersRouter);
-// app.use("/comments", commentsRouter);
+app.use("/", indexRouter);
+app.use("/users", usersRouter);
+app.use("/comments", commentsRouter);
 
 app.use((req, res, next) => {
   const error = new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
